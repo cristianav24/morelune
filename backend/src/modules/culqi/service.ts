@@ -101,13 +101,13 @@ class CulqiProviderService extends AbstractPaymentProvider<CulqiOptions> {
 
     try {
       const charge = await this.culqiRequest("POST", "/charges", {
-        amount: Math.round(Number(input.amount) * 100), // Culqi espera centavos
+        amount: Math.round(Number((input as any).amount) * 100), // Culqi espera centavos
         currency_code: "PEN", // Soles peruanos
         email,
         source_id: token,
         description: "Compra en BagsStore Peru",
         metadata: {
-          order_id: input.context?.session_id || "",
+          order_id: (input.context as any)?.session_id || "",
         },
       })
 
@@ -207,7 +207,7 @@ class CulqiProviderService extends AbstractPaymentProvider<CulqiOptions> {
 
   async getWebhookActionAndData(payload: {
     data: Record<string, unknown>
-    rawData: string | Record<string, unknown>
+    rawData: string | Buffer | Record<string, unknown>
     headers: Record<string, unknown>
   }): Promise<WebhookActionResult> {
     // Culqi envía eventos via webhook — procesar aquí

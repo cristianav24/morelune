@@ -552,7 +552,6 @@ export default async function seed({ container }: ExecArgs) {
         thumbnail: img(p.sku_prefix),
         images: [{ url: img(p.sku_prefix) }],
         status: "published" as const,
-        sales_channels: allChannels.map((c) => ({ id: c.id })),
         category_ids: [categoryMap[p.category]],
         options: [{ title: "Color", values: p.colors }],
         variants: p.colors.map((color, idx) => ({
@@ -579,7 +578,7 @@ export default async function seed({ container }: ExecArgs) {
 
     // Precio por variante (mismo precio para todos los colores)
     for (const variant of product.variants) {
-      const [priceSet] = await pricingService.createPriceSets([{ rules: [] }])
+      const [priceSet] = await pricingService.createPriceSets([{}])
       await pricingService.addPrices([
         {
           priceSetId: priceSet.id,

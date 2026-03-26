@@ -4,13 +4,21 @@ RUN apk add --no-cache python3 make g++
 
 # Instalar dependencias
 FROM base AS deps
-COPY package.json ./
-RUN npm install --frozen-lockfile
+COPY package.json package-lock.json* ./
+RUN npm install --frozen-lockfile || npm install
 
 # Build
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ENV DATABASE_URL=postgresql://dummy:dummy@localhost:5432/dummy \
+    REDIS_URL=redis://localhost:6379 \
+    STORE_CORS=http://localhost:3000 \
+    ADMIN_CORS=http://localhost:9000 \
+    AUTH_CORS=http://localhost:9000 \
+    JWT_SECRET=buildsecret \
+    COOKIE_SECRET=buildsecret
+
 RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
 
 # Producción
@@ -31,4 +39,4 @@ USER medusa
 
 EXPOSE 9000
 
-CMD ["node", ".medusa/server/index.js"]
+CMD ["node_modules/.bin/medusa", "start"]
