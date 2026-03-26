@@ -1,0 +1,15 @@
+{
+  "name": "bags-store",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "storefront"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:storefront": "cd storefront && npm run dev",
+    "build:backend": "cd backend && npm run build",
+    "build:storefront": "cd storefront && npm run build"
+  }
+}

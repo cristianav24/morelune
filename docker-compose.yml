@@ -1,0 +1,144 @@
+version: "3.9"
+
+services:
+  # ─── Base de datos ──────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: bags_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bags_db
+      POSTGRES_USER: bags_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bags_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bags_user -d bags_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis (caché y eventos) ─────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: bags_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - bags_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Medusa Backend ──────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bags_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://bags_user:${POSTGRES_PASSWORD}@postgres:5432/bags_db
+      REDIS_URL: redis://redis:6379
+      MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
+      STORE_CORS: ${STORE_CORS}
+      ADMIN_CORS: ${ADMIN_CORS}
+      AUTH_CORS: ${AUTH_CORS}
+      JWT_SECRET: ${JWT_SECRET}
+      COOKIE_SECRET: ${COOKIE_SECRET}
+      CULQI_PUBLIC_KEY: ${CULQI_PUBLIC_KEY}
+      CULQI_SECRET_KEY: ${CULQI_SECRET_KEY}
+      CULQI_WEBHOOK_SECRET: ${CULQI_WEBHOOK_SECRET}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      SENDGRID_FROM: ${SENDGRID_FROM:-}
+    volumes:
+      - backend_uploads:/app/uploads
+    networks:
+      - bags_network
+    expose:
+      - "9000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ─── Next.js Storefront ──────────────────────────────────────
+  storefront:
+    build:
+      context: ./storefront
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${MEDUSA_PUBLISHABLE_KEY}
+        NEXT_PUBLIC_CULQI_PUBLIC_KEY: ${CULQI_PUBLIC_KEY}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+        NEXT_PUBLIC_GA_ID: ${GA_ID:-}
+    container_name: bags_storefront
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_MEDUSA_BACKEND_URL: ${MEDUSA_BACKEND_URL}
+      NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${MEDUSA_PUBLISHABLE_KEY}
+      NEXT_PUBLIC_CULQI_PUBLIC_KEY: ${CULQI_PUBLIC_KEY}
+      NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+    networks:
+      - bags_network
+    expose:
+      - "3000"
+
+  # ─── Nginx Reverse Proxy ─────────────────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: bags_nginx
+    restart: unless-stopped
+    depends_on:
+      - storefront
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - certbot_www:/var/www/certbot:ro
+      - certbot_conf:/etc/letsencrypt:ro
+    networks:
+      - bags_network
+
+  # ─── Certbot (SSL Let's Encrypt) ─────────────────────────────
+  certbot:
+    image: certbot/certbot
+    container_name: bags_certbot
+    volumes:
+      - certbot_www:/var/www/certbot
+      - certbot_conf:/etc/letsencrypt
+    # Ejecutar manualmente: docker compose run --rm certbot certonly ...
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_uploads:
+  certbot_www:
+  certbot_conf:
+
+networks:
+  bags_network:
+    driver: bridge

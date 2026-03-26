@@ -1,0 +1,34 @@
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN apk add --no-cache python3 make g++
+
+# Instalar dependencias
+FROM base AS deps
+COPY package.json ./
+RUN npm install --frozen-lockfile
+
+# Build
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# Producción
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 medusa
+
+COPY --from=builder --chown=medusa:nodejs /app/.medusa ./.medusa
+COPY --from=builder --chown=medusa:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=medusa:nodejs /app/package.json ./
+
+RUN mkdir -p uploads && chown medusa:nodejs uploads
+
+USER medusa
+
+EXPOSE 9000
+
+CMD ["node", ".medusa/server/index.js"]
