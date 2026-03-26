@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "WebFetch(domain:www.womenbag.com)",
-      "Bash(curl -v -o /dev/null \"https://omo-oss-image.thefastimg.com/portal-saas/pg2025101517444322779/cms/image/4e3158e4-bd15-4a95-b5c6-2b084b2a37c7.jpg\")"
-    ]
-  }
-}
