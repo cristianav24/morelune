@@ -14,7 +14,7 @@ export async function RelatedProducts({ categoryId, excludeId }: Props) {
     const result = await medusa.store.product.list({
       category_id: [categoryId],
       limit: 4,
-      fields: "id,title,handle,thumbnail,variants",
+      fields: "id,title,handle,thumbnail,*variants,*variants.calculated_price",
     })
     products = result.products.filter((p) => p.id !== excludeId).slice(0, 4)
   } catch {
