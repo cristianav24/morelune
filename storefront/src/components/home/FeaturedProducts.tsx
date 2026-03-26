@@ -6,7 +6,7 @@ interface Product {
   title: string
   handle: string | null
   thumbnail: string | null
-  variants?: any[]
+  variants?: any[] | null
 }
 
 export function FeaturedProducts({ products }: { products: Product[] }) {
