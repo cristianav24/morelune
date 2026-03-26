@@ -51,7 +51,7 @@ export function CulqiCheckout({ amount, email, onSuccess }: CulqiCheckoutProps) 
     window.Culqi.publicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY || ""
     window.Culqi.amount = Math.round(amount * 100) // Culqi usa centavos
     window.Culqi.currency = "PEN"
-    window.Culqi.description = "Compra en BagsStore Perú"
+    window.Culqi.description = "Compra en Morelune Perú"
     window.Culqi.email = email
     window.Culqi.open()
   }

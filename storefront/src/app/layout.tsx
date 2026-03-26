@@ -24,8 +24,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tudominio.com"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "BagsStore Perú | Carteras y Bolsos para Mujer",
-    template: "%s | BagsStore Perú",
+    default: "Morelune Perú | Carteras y Bolsos para Mujer",
+    template: "%s | Morelune Perú",
   },
   description:
     "Las mejores carteras y bolsos para mujer en Perú. Envío a Lima y todo el país. Cuero genuino, bolsos de tela, clutches y mochilas con estilo.",
@@ -39,16 +39,16 @@ export const metadata: Metadata = {
     "carteras baratas Lima",
     "tienda de carteras Peru",
   ],
-  authors: [{ name: "BagsStore Perú" }],
-  creator: "BagsStore Perú",
-  publisher: "BagsStore Perú",
+  authors: [{ name: "Morelune Perú" }],
+  creator: "Morelune Perú",
+  publisher: "Morelune Perú",
   formatDetection: { email: false, address: false, telephone: false },
   openGraph: {
     type: "website",
     locale: "es_PE",
     url: siteUrl,
-    siteName: "BagsStore Perú",
-    title: "BagsStore Perú | Carteras y Bolsos para Mujer",
+    siteName: "Morelune Perú",
+    title: "Morelune Perú | Carteras y Bolsos para Mujer",
     description:
       "Las mejores carteras y bolsos para mujer en Perú. Envío a Lima y todo el país.",
     images: [
@@ -56,13 +56,13 @@ export const metadata: Metadata = {
         url: `${siteUrl}/og-image.jpg`,
         width: 1200,
         height: 630,
-        alt: "BagsStore Perú - Carteras y Bolsos para Mujer",
+        alt: "Morelune Perú - Carteras y Bolsos para Mujer",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BagsStore Perú | Carteras y Bolsos para Mujer",
+    title: "Morelune Perú | Carteras y Bolsos para Mujer",
     description:
       "Las mejores carteras y bolsos para mujer en Perú. Envío a Lima y todo el país.",
     images: [`${siteUrl}/og-image.jpg`],
@@ -132,7 +132,7 @@ export default async function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "OnlineStore",
-              name: "BagsStore Perú",
+              name: "Morelune Perú",
               url: siteUrl,
               description:
                 "Tienda online de carteras y bolsos para mujer en Perú",

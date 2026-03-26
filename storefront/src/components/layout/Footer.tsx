@@ -12,7 +12,7 @@ export function Footer({ categories = [] }: { categories?: NavCategory[] }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Marca */}
           <div className="col-span-1 md:col-span-2">
-            <h2 className="font-serif text-2xl text-white mb-3">BagsStore</h2>
+            <h2 className="font-serif text-2xl text-white mb-3">Morelune</h2>
             <p className="text-brand-200 text-sm leading-relaxed max-w-xs">
               Carteras y bolsos de calidad para la mujer peruana. Envíos a Lima
               y todo el Perú.
@@ -92,7 +92,7 @@ export function Footer({ categories = [] }: { categories?: NavCategory[] }) {
 
         <div className="border-t border-brand-700 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
           <p className="text-xs text-brand-400">
-            © {new Date().getFullYear()} BagsStore Perú. Todos los derechos reservados.
+            © {new Date().getFullYear()} Morelune Perú. Todos los derechos reservados.
           </p>
           <div className="flex items-center gap-2">
             <img src="/culqi-badge.png" alt="Pago seguro con Culqi" className="h-6 opacity-70" />

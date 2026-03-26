@@ -40,12 +40,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: product.title,
     description:
       product.description?.slice(0, 160) ||
-      `Compra ${product.title} en BagsStore Perú. Envío a Lima y todo el país.`,
+      `Compra ${product.title} en Morelune Perú. Envío a Lima y todo el país.`,
     alternates: {
       canonical: `/tienda/${slug}`,
     },
     openGraph: {
-      title: `${product.title} | BagsStore Perú`,
+      title: `${product.title} | Morelune Perú`,
       description: product.description?.slice(0, 160) || "",
       images: [{ url: imageUrl, width: 800, height: 800, alt: product.title }],
       type: "website",
@@ -116,7 +116,7 @@ export default async function ProductPage({ params }: Props) {
             sku: product.variants?.[0]?.sku,
             brand: {
               "@type": "Brand",
-              name: "BagsStore Perú",
+              name: "Morelune Perú",
             },
             offers: {
               "@type": "AggregateOffer",
@@ -125,7 +125,7 @@ export default async function ProductPage({ params }: Props) {
               availability: "https://schema.org/InStock",
               seller: {
                 "@type": "Organization",
-                name: "BagsStore Perú",
+                name: "Morelune Perú",
               },
             },
             ...(category && {

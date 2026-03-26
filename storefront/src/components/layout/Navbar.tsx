@@ -40,7 +40,7 @@ export function Navbar({ categories = [] }: { categories?: NavCategory[] }) {
             href="/"
             className="font-serif text-2xl text-brand-800 hover:text-accent transition-colors"
           >
-            BagsStore
+            Morelune
           </Link>
 
           {/* Nav desktop */}
