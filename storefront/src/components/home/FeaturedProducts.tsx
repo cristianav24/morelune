@@ -1,15 +1,8 @@
 import Link from "next/link"
+import type { StoreProduct } from "@medusajs/types"
 import { ProductCard } from "@/components/products/ProductCard"
 
-interface Product {
-  id: string
-  title: string
-  handle: string | null
-  thumbnail: string | null
-  variants?: any[] | null
-}
-
-export function FeaturedProducts({ products }: { products: Product[] }) {
+export function FeaturedProducts({ products }: { products: StoreProduct[] }) {
   if (!products.length) return null
 
   return (

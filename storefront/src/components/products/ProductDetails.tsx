@@ -4,25 +4,10 @@ import { useState } from "react"
 import Image from "next/image"
 import toast from "react-hot-toast"
 import { useCartStore } from "@/lib/cart-store"
+import type { StoreProduct } from "@medusajs/types"
 
 interface ProductDetailsProps {
-  product: {
-    id: string
-    title: string
-    description?: string | null
-    thumbnail?: string | null
-    images?: Array<{ url: string }>
-    variants?: Array<{
-      id: string
-      title: string
-      sku?: string | null
-      calculated_price?: { calculated_amount?: number | null } | null
-      inventory_quantity?: number
-      options?: Record<string, string>
-    }>
-    options?: Array<{ id: string; title: string; values: Array<{ value: string }> }>
-    metadata?: Record<string, unknown>
-  }
+  product: StoreProduct
 }
 
 export function ProductDetails({ product }: ProductDetailsProps) {
@@ -116,9 +101,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
               {option.title}:
             </p>
             <div className="flex flex-wrap gap-2">
-              {option.values.map((val) => {
+              {(option.values ?? []).map((val) => {
                 const variant = product.variants?.find(
-                  (v) => v.options?.[option.title] === val.value
+                  (v) => v.options?.some(
+                    (o) => o.option?.title === option.title && o.value === val.value
+                  )
                 )
                 const isSelected = variant?.id === selectedVariantId
                 return (

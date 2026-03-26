@@ -1,14 +1,7 @@
+import type { StoreProduct } from "@medusajs/types"
 import { ProductCard } from "./ProductCard"
 
-interface Product {
-  id: string
-  title: string
-  handle: string | null
-  thumbnail: string | null
-  variants?: any[]
-}
-
-export function ProductGrid({ products }: { products: Product[] }) {
+export function ProductGrid({ products }: { products: StoreProduct[] }) {
   if (!products.length) {
     return (
       <div className="text-center py-20 text-gray-400">

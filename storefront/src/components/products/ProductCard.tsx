@@ -4,18 +4,10 @@ import Image from "next/image"
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { useCartStore } from "@/lib/cart-store"
+import type { StoreProduct } from "@medusajs/types"
 
 interface ProductCardProps {
-  product: {
-    id: string
-    title: string
-    handle: string | null
-    thumbnail: string | null
-    variants?: Array<{
-      id: string
-      calculated_price?: { calculated_amount?: number | null } | null
-    }>
-  }
+  product: StoreProduct
 }
 
 export function ProductCard({ product }: ProductCardProps) {
