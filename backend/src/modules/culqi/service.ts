@@ -70,7 +70,7 @@ class CulqiProviderService extends AbstractPaymentProvider<CulqiOptions> {
     const data = await response.json()
     if (!response.ok) {
       throw new Error(
-        `Culqi error [${response.status}]: ${data.user_message || JSON.stringify(data)}`
+        `Culqi error [${response.status}]: ${(data as any).user_message || JSON.stringify(data)}`
       )
     }
     return data
