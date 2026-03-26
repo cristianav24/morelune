@@ -466,8 +466,10 @@ export default async function seed({ container }: ExecArgs) {
   const storeService = container.resolve(Modules.STORE)
   const productService = container.resolve(Modules.PRODUCT)
   const pricingService = container.resolve(Modules.PRICING)
+  const stockLocationService = container.resolve(Modules.STOCK_LOCATION)
+  const inventoryService = container.resolve(Modules.INVENTORY)
 
-  logger.info("=== BagsStore Perú — Seed iniciado ===")
+  logger.info("=== Morelune Perú — Seed iniciado ===")
   logger.info(`  Tipo de cambio: 1 CNY = S/ ${CNY_TO_PEN} × ${MARKUP} = precio venta`)
 
   // 1. Eliminar productos existentes
@@ -519,12 +521,32 @@ export default async function seed({ container }: ExecArgs) {
   const [store] = await storeService.listStores()
   if (store) {
     await storeService.updateStores(store.id, {
-      name: "BagsStore Perú",
+      name: "Morelune Perú",
       default_sales_channel_id: defaultSalesChannel.id,
     })
   }
 
-  // 6. Crear categorías nuevas
+  // 6. Stock Location — reusar o crear
+  logger.info("Configurando stock location...")
+  const existingLocations = await stockLocationService.listStockLocations({})
+  let stockLocation = existingLocations[0]
+  if (!stockLocation) {
+    ;[stockLocation] = await stockLocationService.createStockLocations([
+      { name: "Lima - Principal", address: { city: "Lima", country_code: "pe" } },
+    ])
+    logger.info(`  → Stock location creado: ${stockLocation.id}`)
+  } else {
+    logger.info(`  → Usando stock location existente: ${stockLocation.id}`)
+  }
+
+  // Linkear sales channel → stock location
+  await remoteLink.create({
+    [Modules.SALES_CHANNEL]: { sales_channel_id: defaultSalesChannel.id },
+    [Modules.STOCK_LOCATION]: { stock_location_id: stockLocation.id },
+  })
+  logger.info(`  → Sales channel vinculado al stock location`)
+
+  // 7. Crear categorías nuevas
   logger.info("\nCreando categorías...")
   const createdCats = await productService.createProductCategories(
     CATEGORIES.map((c) => ({ ...c, is_active: true }))
@@ -576,8 +598,9 @@ export default async function seed({ container }: ExecArgs) {
       },
     ])
 
-    // Precio por variante (mismo precio para todos los colores)
+    // Precio e inventario por variante
     for (const variant of product.variants) {
+      // Precio
       const [priceSet] = await pricingService.createPriceSets([{}])
       await pricingService.addPrices([
         {
@@ -588,6 +611,22 @@ export default async function seed({ container }: ExecArgs) {
       await remoteLink.create({
         [Modules.PRODUCT]: { variant_id: variant.id },
         [Modules.PRICING]: { price_set_id: priceSet.id },
+      })
+
+      // Inventory item + nivel de stock
+      const [inventoryItem] = await inventoryService.createInventoryItems([
+        { sku: variant.sku, title: variant.title || p.title },
+      ])
+      await inventoryService.createInventoryLevels([
+        {
+          inventory_item_id: inventoryItem.id,
+          location_id: stockLocation.id,
+          stocked_quantity: 100,
+        },
+      ])
+      await remoteLink.create({
+        [Modules.PRODUCT]: { variant_id: variant.id },
+        [Modules.INVENTORY]: { inventory_item_id: inventoryItem.id },
       })
     }
 
