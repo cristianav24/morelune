@@ -77,7 +77,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
                   i === selectedImage ? "border-accent" : "border-transparent"
                 }`}
               >
-                <Image src={img.url} alt="" fill className="object-cover" sizes="64px" />
+                <Image src={img.url} alt={`${product.title} - imagen ${i + 1}`} fill className="object-cover" sizes="64px" />
               </button>
             ))}
           </div>

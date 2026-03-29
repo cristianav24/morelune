@@ -4,11 +4,11 @@ import { FilterSidebar } from "@/components/products/FilterSidebar"
 import { medusa } from "@/lib/medusa"
 
 export const metadata: Metadata = {
-  title: "Tienda | Carteras y Bolsos para Mujer",
+  title: "Carteras y Bolsos para Mujer en Perú | Morelune",
   description:
     "Explora nuestra colección completa de carteras y bolsos para mujer en Perú. Cuero genuino, bolsos de tela, clutches y mochilas con envío a Lima y todo el país.",
   alternates: {
-    canonical: "/tienda",
+    canonical: `${process.env.NEXT_PUBLIC_SITE_URL}/tienda`,
   },
 }
 
