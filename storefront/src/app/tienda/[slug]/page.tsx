@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: "Morelune Perú",
       locale: "es_PE",
       images: ogImages,
-      type: "product",
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",

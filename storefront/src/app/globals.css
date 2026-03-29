@@ -1,46 +1,135 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --brand: #bfa094;
-    --accent: #c9956b;
+/* ============================================================
+   MORELUNE PERÚ — Design System (Tailwind v4)
+   ============================================================ */
+
+@theme {
+  /* --- Brand Palette (warm earthy tones, OKLCH) --- */
+  --color-brand-50:  oklch(98.5% 0.007 58);
+  --color-brand-100: oklch(95%   0.015 54);
+  --color-brand-200: oklch(90%   0.026 50);
+  --color-brand-300: oklch(83%   0.038 47);
+  --color-brand-400: oklch(75%   0.055 46);
+  --color-brand-500: oklch(68%   0.065 45);
+  --color-brand-600: oklch(59%   0.063 42);
+  --color-brand-700: oklch(50%   0.052 38);
+  --color-brand-800: oklch(42%   0.040 33);
+  --color-brand-900: oklch(33%   0.032 28);
+  --color-brand-950: oklch(22%   0.022 25);
+
+  /* --- Primary / CTA — Terracotta --- */
+  --color-primary:            oklch(67% 0.105 52);
+  --color-primary-dark:       oklch(58% 0.098 47);
+  --color-primary-light:      oklch(78% 0.085 58);
+  --color-primary-foreground: oklch(100% 0 0);
+
+  /* --- Semantic surfaces --- */
+  --color-surface:       oklch(100% 0 0);
+  --color-surface-muted: oklch(97.5% 0.008 58);
+
+  /* --- Typography --- */
+  --font-sans:  var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+
+  /* --- Border Radius --- */
+  --radius-sm:  0.25rem;
+  --radius-md:  0.5rem;
+  --radius-lg:  0.75rem;
+  --radius-xl:  1rem;
+  --radius-2xl: 1.5rem;
+
+  /* --- Animations --- */
+  --animate-fade-in:       fade-in 0.3s ease-out;
+  --animate-slide-up:      slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-slide-in-right: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
   }
 
+  @keyframes slide-up {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  @keyframes slide-in-right {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0);    }
+  }
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+@layer base {
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply text-gray-900;
+    background-color: var(--color-brand-50);
+    color: oklch(20% 0.025 30);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  h1, h2, h3 {
-    @apply font-serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
   }
 }
 
+/* ============================================================
+   COMPONENT CLASSES
+   ============================================================ */
+
 @layer components {
+  /* Buttons */
   .btn-primary {
-    @apply bg-accent text-white px-6 py-3 rounded-md font-medium
-           hover:bg-accent-dark transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center
+           bg-primary text-white
+           px-6 py-3 rounded-lg
+           font-sans font-medium text-sm tracking-wide
+           transition-all duration-200
+           hover:bg-primary-dark
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed
+           active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply border border-accent text-accent px-6 py-3 rounded-md font-medium
-           hover:bg-accent hover:text-white transition-colors duration-200
-           focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2;
+    @apply inline-flex items-center justify-center
+           border border-primary text-primary
+           px-6 py-3 rounded-lg
+           font-sans font-medium text-sm tracking-wide
+           transition-all duration-200
+           hover:bg-primary hover:text-white
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2
+           active:scale-[0.98];
   }
 
+  /* Cards */
   .product-card {
-    @apply relative bg-white rounded-lg overflow-hidden
-           shadow-sm hover:shadow-md transition-shadow duration-300;
+    @apply relative bg-white rounded-xl overflow-hidden
+           ring-1 ring-brand-100
+           hover:ring-brand-200 hover:shadow-xl
+           transition-all duration-300;
   }
 
+  /* Layout */
   .container-main {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section headings */
+  .section-eyebrow {
+    @apply text-primary text-xs font-sans font-semibold uppercase tracking-widest mb-2;
+  }
+
+  .section-title {
+    @apply font-serif text-3xl md:text-4xl text-brand-950 leading-tight;
   }
 }

@@ -44,6 +44,14 @@ export const metadata: Metadata = {
   creator: "Morelune Perú",
   publisher: "Morelune Perú",
   formatDetection: { email: false, address: false, telephone: false },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "192x192", type: "image/png" }],
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     type: "website",
     locale: "es_PE",

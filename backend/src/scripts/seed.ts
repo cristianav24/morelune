@@ -472,15 +472,23 @@ export default async function seed({ container }: ExecArgs) {
   logger.info("=== Morelune Perú — Seed iniciado ===")
   logger.info(`  Tipo de cambio: 1 CNY = S/ ${CNY_TO_PEN} × ${MARKUP} = precio venta`)
 
-  // 1. Eliminar productos existentes
-  logger.info("\nEliminando productos existentes...")
+  // 1. Eliminar inventory items huérfanos
+  logger.info("\nEliminando inventory items existentes...")
+  const existingItems = await inventoryService.listInventoryItems({}, { take: 1000 })
+  if (existingItems.length > 0) {
+    await inventoryService.deleteInventoryItems(existingItems.map((i) => i.id))
+    logger.info(`  → ${existingItems.length} inventory items eliminados`)
+  }
+
+  // 2. Eliminar productos existentes
+  logger.info("Eliminando productos existentes...")
   const existingProducts = await productService.listProducts({}, { take: 500 })
   if (existingProducts.length > 0) {
     await productService.deleteProducts(existingProducts.map((p) => p.id))
     logger.info(`  → ${existingProducts.length} productos eliminados`)
   }
 
-  // 2. Eliminar categorías existentes
+  // 3. Eliminar categorías existentes
   logger.info("Eliminando categorías existentes...")
   const existingCats = await productService.listProductCategories({}, { take: 200 })
   if (existingCats.length > 0) {
@@ -500,22 +508,24 @@ export default async function seed({ container }: ExecArgs) {
     ])
   }
 
-  // 4. Canal de ventas — reusar el canal existente vinculado a la publishable key
-  logger.info("Configurando canal de ventas...")
-  const allChannels = await salesChannelService.listSalesChannels({})
-  // Usar el canal ya existente (tiene la publishable key vinculada).
-  // Solo crear uno nuevo si no existe ninguno.
-  let defaultSalesChannel = allChannels[0]
-  if (!defaultSalesChannel) {
-    ;[defaultSalesChannel] = await salesChannelService.createSalesChannels([
+  // 4. Canales de ventas — reusar todos los existentes
+  logger.info("Configurando canales de ventas...")
+  let allChannels = await salesChannelService.listSalesChannels({})
+  if (!allChannels.length) {
+    const [created] = await salesChannelService.createSalesChannels([
       {
         name: "Tienda Online",
         description: "Canal principal de ventas BagsStore Perú",
         is_disabled: false,
       },
     ])
+    allChannels = [created]
   }
-  logger.info(`  → Usando canal: "${defaultSalesChannel.name}" (${defaultSalesChannel.id})`)
+  const defaultSalesChannel = allChannels[0]
+  logger.info(`  → ${allChannels.length} canal(es) encontrado(s):`)
+  for (const ch of allChannels) {
+    logger.info(`     · "${ch.name}" (${ch.id})`)
+  }
 
   // 5. Actualizar nombre de la tienda
   const [store] = await storeService.listStores()
@@ -539,12 +549,18 @@ export default async function seed({ container }: ExecArgs) {
     logger.info(`  → Usando stock location existente: ${stockLocation.id}`)
   }
 
-  // Linkear sales channel → stock location
-  await remoteLink.create({
-    [Modules.SALES_CHANNEL]: { sales_channel_id: defaultSalesChannel.id },
-    [Modules.STOCK_LOCATION]: { stock_location_id: stockLocation.id },
-  })
-  logger.info(`  → Sales channel vinculado al stock location`)
+  // Linkear todos los canales → stock location
+  for (const channel of allChannels) {
+    try {
+      await remoteLink.create({
+        [Modules.SALES_CHANNEL]: { sales_channel_id: channel.id },
+        [Modules.STOCK_LOCATION]: { stock_location_id: stockLocation.id },
+      })
+    } catch {
+      // El vínculo ya existe, se ignora
+    }
+  }
+  logger.info(`  → Canales vinculados al stock location`)
 
   // 7. Crear categorías nuevas
   logger.info("\nCreando categorías...")
@@ -598,6 +614,14 @@ export default async function seed({ container }: ExecArgs) {
       },
     ])
 
+    // Vincular producto a TODOS los canales de ventas existentes
+    for (const channel of allChannels) {
+      await remoteLink.create({
+        [Modules.PRODUCT]: { product_id: product.id },
+        [Modules.SALES_CHANNEL]: { sales_channel_id: channel.id },
+      })
+    }
+
     // Precio e inventario por variante
     for (const variant of product.variants) {
       // Precio
@@ -639,7 +663,7 @@ export default async function seed({ container }: ExecArgs) {
   // Resumen final
   logger.info("\n=== Seed completado exitosamente ===")
   logger.info(`  Región:     ${peruRegion.name} (PEN)`)
-  logger.info(`  Canal:      ${defaultSalesChannel.name}`)
+  logger.info(`  Canales:    ${allChannels.map((c) => c.name).join(", ")}`)
   logger.info(`  Categorías: ${createdCats.length}`)
   logger.info(
     `              ${CATEGORIES.map((c) => c.name).join(" | ")}`
